@@ -4,10 +4,10 @@ import time
 import serial
 import io
 
-import Communicator as sc
-import MessageEncoder
+import communicator
 import pygame
-import CommandController as cc
+import command_controller
+import data_message
 
 
 def joystickSpeed():
@@ -63,7 +63,7 @@ ser = serial.Serial(
 
 )
 
-arduino_link = sc.Communicator(ser,255)
+arduino_link = communicator.Communicator(ser,255)
 
 
 #message1 = MessageEncoder.changeStateMessage(0,-30,30,True)
@@ -72,18 +72,24 @@ pygame.init()
 pygame.joystick.init()
 
 
-command_controller = cc.CommandController()
+arduino_controller = command_controller.CommandController()
 
-command_controller.setSpeedSource( joystickSpeed)
-command_controller.setCameraAngeSource( joystickCamera)
-command_controller.setDirectionSource( joystickDirection)
+arduino_controller.setSpeedSource( joystickSpeed)
+arduino_controller.setCameraAngeSource( joystickCamera)
+arduino_controller.setDirectionSource( joystickDirection)
 
 
 while True:
     pygame.event.get()
-    command_controller.update()
+    arduino_controller.update()
     arduino_link.runReceptionLoop()   
-    arduino_link.sendMessage( MessageEncoder.changeStateMessage(command_controller, False))
+    arduino_link.sendMessage(arduino_controller.encode_for_tx(True))
+
+    if arduino_link.isMessageReceived():
+        data_from_arduino = data_message.DataMessage(arduino_link.getReceivedMessage())
+        print('\r' + str(data_from_arduino), end ='', flush=True)
+        arduino_link.reset()
+
     time.sleep(0.05)
 
 
