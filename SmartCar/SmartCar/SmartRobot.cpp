@@ -11,7 +11,7 @@ SmartRobot::SmartRobot(uint8_t servo_port, uint8_t ultrasonic_sensor_port, uint8
 	lightsensor_left_(12),
 	servo_port_(servo_port),
 	front_leds_(front_led_port, 4),
-	encoder_scale_(encoder_scale),
+	ENCODER_SCALE_(encoder_scale),
 	imu_(imu),
 	com_(com)
 {
@@ -85,7 +85,8 @@ void SmartRobot::updatePostion()
 	long p2 = Encoder_2_.getPulsePos();
 	long dp1 = p1 - last_encoder_value_1_;
 	long dp2 = p2 - last_encoder_value_2_;
-	VectorFloat dr((dp2 - dp1) / 2 / encoder_scale_, 0, 0);
+	VectorFloat dr((dp2 - dp1) / 2.0f / ENCODER_SCALE_, 0.0f, 0.0f);
+	imu_.update();
 	dr.rotate(&imu_.getQuaternion());
 
 	position.x += dr.x;
@@ -95,6 +96,9 @@ void SmartRobot::updatePostion()
 	position.yaw = imu_.getYaw();
 	position.pitch = imu_.getPitch();
 	position.roll = imu_.getRoll();
+
+	last_encoder_value_1_ = p1;
+	last_encoder_value_2_ = p2;
 
 }
 
@@ -138,7 +142,7 @@ DataMessage SmartRobot::packData()
 	data_message.temperature = temperature_onboard_.readValue();
 	data_message.ultrasonic_distance = ultrasonic_sensor_.distanceCm();
 	data_message.position_angle = position.yaw;
-	data_message.postion_x = position.x;
+	data_message.position_x = position.x;
 	data_message.position_y = position.y;
 	data_message.total_distance = position.total_distance;
 
@@ -168,7 +172,6 @@ void SmartRobot::startUp()
 
 	setVisionAngle(0);
 	setFrontWheelsAngle(0);
-
 }
 
 
