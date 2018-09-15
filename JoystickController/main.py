@@ -11,12 +11,13 @@ import data_message
 
 
 def joystickSpeed():
+    pygame.joystick.init()
     if pygame.joystick.get_count():
         joystick = pygame.joystick.Joystick(0)
         joystick.init()
 
-        ax_hor = joystick.get_axis(2)
-        ax_ver = -joystick.get_axis(5)
+        ax_hor = joystick.get_axis(0)
+        ax_ver = -joystick.get_axis(1)
 
         ax_hor = ax_hor*abs(ax_hor)
         ax_ver = ax_ver*abs(ax_ver)
@@ -28,29 +29,13 @@ def joystickSpeed():
         return 0, 0
 
 def joystickCamera():
+    pygame.joystick.init()
     if pygame.joystick.get_count():
         joystick = pygame.joystick.Joystick(0)
         joystick.init()
-
-        if joystick.get_button(7): #R2
-            return int(80.0*joystick.get_axis( 0 ))
-        else:
-            return int(40.0*joystick.get_axis( 0 ))
-
+        return int(60.0*joystick.get_axis( 2 )), int(60.0*joystick.get_axis( 5 ))
     else:
-        return 0  
-
-def joystickDirection():
-    if pygame.joystick.get_count():
-        joystick = pygame.joystick.Joystick(0)
-        joystick.init()
-        if not joystick.get_button(7): #R2
-            return int(40.0*joystick.get_axis( 0 ))
-        else:
-            return 0
-    else:
-        return 0  
-
+        return 0, 0  
 
 ser = serial.Serial(
     
@@ -69,14 +54,13 @@ arduino_link = communicator.Communicator(ser,255)
 #message1 = MessageEncoder.changeStateMessage(0,-30,30,True)
 
 pygame.init()
-pygame.joystick.init()
+
 
 
 arduino_controller = command_controller.CommandController()
 
 arduino_controller.setSpeedSource( joystickSpeed)
 arduino_controller.setCameraAngeSource( joystickCamera)
-arduino_controller.setDirectionSource( joystickDirection)
 
 
 while True:

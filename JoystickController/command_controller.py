@@ -9,7 +9,8 @@ class CommandController:
         self.speed1_command = 0
         self.speed2_command = 0
         self.direction_command = 0
-        self.camera_angle_command = 0
+        self.camera_angle_command_ver = 0
+        self.camera_angle_command_hor = 0
 
     def setSpeedSource(self, speed_function):
         self._speedFunction = speed_function        
@@ -28,7 +29,7 @@ class CommandController:
             self.direction_command = self._directionFunction()
 
         if (not self._cameraAngleFunction is None):
-            self.camera_angle_command = self._cameraAngleFunction()
+            self.camera_angle_command_hor, self.camera_angle_command_ver = self._cameraAngleFunction()
 
 
     def encode_for_tx(self, return_response):
@@ -36,8 +37,8 @@ class CommandController:
     # < - little endian, c - byte of length 1, h - short integer of length 2
         message = struct.pack('<Bhhhh?', 1, self.speed1_command, \
                                         self.speed2_command, \
-                                        self.direction_command, \
-                                        self.camera_angle_command, \
+                                        self.camera_angle_command_ver, \
+                                        self.camera_angle_command_hor, \
                                         return_response)
         return message
 
