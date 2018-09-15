@@ -139,7 +139,7 @@ class SmartRobot
 		long last_encoder_value_1_ = 0;
 		long last_encoder_value_2_ = 0;
 
-		float encoder_scale_ = 2700.0f;
+		float ENCODER_SCALE_ = 2700.0f;
 
 		IMU& imu_;
 		SerialCommunicator& com_;

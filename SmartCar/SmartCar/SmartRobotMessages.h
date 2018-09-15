@@ -31,7 +31,7 @@ struct DataMessage
 	float temperature;
 
 	float position_angle;
-	float postion_x;
+	float position_x;
 	float position_y;
 	float total_distance;
 
