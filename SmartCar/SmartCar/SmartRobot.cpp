@@ -1,10 +1,10 @@
 #include "SmartRobot.h"
 
 SmartRobot::SmartRobot(uint8_t servo_port, uint8_t ultrasonic_sensor_port, uint8_t front_led_port,
-	uint8_t center_servo_direction, uint8_t  center_servo_vision, float encoder_scale, IMU& imu, SerialCommunicator& com, 
+	uint8_t center_servo_vision_hor, uint8_t  center_servo_vision_ver, float encoder_scale, IMU& imu, SerialCommunicator& com, 
 	MeEncoderOnBoard& Encdoder_1, MeEncoderOnBoard& Encoder_2)
 	: Encoder_1_(Encdoder_1), Encoder_2_(Encoder_2),
-	CENTER_SERVO_DIRECTION_(center_servo_direction), CENTER_SERVO_VISION_(center_servo_vision),
+	CENTER_SERVO_VISION_HOR_(center_servo_vision_hor), CENTER_SERVO_VISION_VER_(center_servo_vision_ver),
 	ultrasonic_sensor_(ultrasonic_sensor_port),
 	temperature_onboard_(PORT_13),
 	lightsensor_right_(11),
@@ -15,8 +15,8 @@ SmartRobot::SmartRobot(uint8_t servo_port, uint8_t ultrasonic_sensor_port, uint8
 	imu_(imu),
 	com_(com)
 {
-	servo_direction_ = ::servos[0];
-	servo_vision_ = ::servos[1];
+	servo_vision_hor_ = ::servos[0];
+	servo_vision_ver_ = ::servos[1];
 	top_leds_.setpin(RGBLED_PORT);
 	buzzer_.setpin(BUZZER_PORT);
 }
@@ -52,14 +52,17 @@ void SmartRobot::setRearMotorsSpeed(int16_t motorSpeed1, int16_t motorSpeed2)
 
 void SmartRobot::setFrontWheelsAngle(int8_t angle)
 {
-	angle = constrain(angle, -MAX_SERVO_DIRECTION_ANGLE_, MAX_SERVO_DIRECTION_ANGLE_);
-	servo_direction_.write(CENTER_SERVO_DIRECTION_ + angle);
+	//angle = constrain(angle, -MAX_SERVO_DIRECTION_ANGLE_, MAX_SERVO_DIRECTION_ANGLE_);
+	//servo_direction_.write(CENTER_SERVO_DIRECTION_ + angle);
 }
 
-void SmartRobot::setVisionAngle(int8_t angle)
+void SmartRobot::setVisionAngle(int8_t angle_ver, int8_t angle_hor)
 {
-	angle = constrain(angle, -MAX_SERVO_VISION_ANGLE_, MAX_SERVO_VISION_ANGLE_);
-	servo_vision_.write(CENTER_SERVO_VISION_ + angle);
+	angle_ver = constrain(angle_ver, -MAX_SERVO_VISION_ANGLE_VER_, MAX_SERVO_VISION_ANGLE_VER_);
+	servo_vision_ver_.write(CENTER_SERVO_VISION_VER_ + angle_ver);
+	angle_hor = constrain(angle_hor, -MAX_SERVO_VISION_ANGLE_HOR_, MAX_SERVO_VISION_ANGLE_HOR_);
+	servo_vision_hor_.write(CENTER_SERVO_VISION_HOR_ + angle_hor);
+
 }
 
 void SmartRobot::showTopLedsBusy(long duration)
@@ -123,8 +126,8 @@ void SmartRobot::runCommunicationLoop()
 void SmartRobot::OnChangeStateMessageReceive(const uint8_t * message_bytes)
 {
 	ChangeStateMessage state_message(message_bytes);
-	setFrontWheelsAngle(state_message.direction_angle);
-	setVisionAngle(state_message.vision_angle);
+	//setFrontWheelsAngle(state_message.direction_angle);
+	setVisionAngle(state_message.vision_angle_ver, state_message.vision_angle_hor);
 	setRearMotorsSpeed(state_message.motor_speed1, state_message.motor_speed2);
 
 	if (state_message.need_data) {
@@ -152,26 +155,27 @@ DataMessage SmartRobot::packData()
 void SmartRobot::startUp()
 {
 
-	servo_direction_.attach(servo_port_.pin1());
-	servo_vision_.attach(servo_port_.pin2());
+	servo_vision_ver_.attach(servo_port_.pin2());
+	servo_vision_hor_.attach(servo_port_.pin1());
 
 	stop();
 	buzzer_.tone(500, 200);
 
-
 	front_leds_.setColor(0, 0, 0, 0);
 	front_leds_.show();
 
-	setVisionAngle(MAX_SERVO_VISION_ANGLE_);
-	setFrontWheelsAngle(MAX_SERVO_DIRECTION_ANGLE_);
-	showTopLedsBusy(1000);
-
-	setVisionAngle(-MAX_SERVO_VISION_ANGLE_);
-	setFrontWheelsAngle(-MAX_SERVO_DIRECTION_ANGLE_);
-	showTopLedsBusy(1000);
-
-	setVisionAngle(0);
-	setFrontWheelsAngle(0);
+	//check camera servos
+	setVisionAngle(MAX_SERVO_VISION_ANGLE_VER_, 0);
+	showTopLedsBusy(500);
+	setVisionAngle(-MAX_SERVO_VISION_ANGLE_VER_, 0);
+	showTopLedsBusy(500);
+	setVisionAngle(0, 0);
+	showTopLedsBusy(500);
+	setVisionAngle(0, MAX_SERVO_VISION_ANGLE_HOR_);
+	showTopLedsBusy(500);
+	setVisionAngle(0, -MAX_SERVO_VISION_ANGLE_HOR_);
+	showTopLedsBusy(500);
+	setVisionAngle(0, 0);
 }
 
 
@@ -180,6 +184,16 @@ void SmartRobot::runMainLoop()
 {
 	updatePostion();
 	runCommunicationLoop();
+	if (lightsensor_left_.read() < 100 && lightsensor_right_.read() < 100)
+	{
+		front_leds_.setColor(0, 100, 100, 100);
+		front_leds_.show();
+	}
+	else
+	{
+		front_leds_.setColor(0, 0, 0, 0);
+		front_leds_.show();
+	}
 }
 
 

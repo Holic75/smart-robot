@@ -32,7 +32,7 @@ SerialCommunicator serial_com(Serial, 255, 5);
 IMU imu(0x69);
 
 
-SmartRobot smart_robot(9, 7, 6, 105, 85, 2700.0f, imu, serial_com, Encoder_1, Encoder_2);
+SmartRobot smart_robot(10, 6, 7, 90, 90, 2700.0f, imu, serial_com, Encoder_1, Encoder_2);
 
 
 void setup()

@@ -111,8 +111,8 @@ class IMU
 class SmartRobot
 {
 	private:
-		Servo servo_direction_;
-		Servo servo_vision_;
+		Servo servo_vision_hor_;
+		Servo servo_vision_ver_;
 		MePort servo_port_;
 
 		MeRGBLed top_leds_;
@@ -130,11 +130,11 @@ class SmartRobot
 		
 
 		const uint8_t MAX_SPEED_ = 200;
-		const uint8_t CENTER_SERVO_DIRECTION_;
-		const uint8_t CENTER_SERVO_VISION_;
+		const uint8_t CENTER_SERVO_VISION_HOR_;
+		const uint8_t CENTER_SERVO_VISION_VER_;
 
-		const int8_t MAX_SERVO_DIRECTION_ANGLE_ = 40;
-		const int8_t MAX_SERVO_VISION_ANGLE_ = 75;
+		const int8_t MAX_SERVO_VISION_ANGLE_VER_ = 60;
+		const int8_t MAX_SERVO_VISION_ANGLE_HOR_ = 75;
 
 		long last_encoder_value_1_ = 0;
 		long last_encoder_value_2_ = 0;
@@ -156,8 +156,8 @@ class SmartRobot
 		
 
 	public:
-		SmartRobot(uint8_t servo_port, uint8_t ultrasonic_sensor_port, uint8_t front_led_port, uint8_t center_servo_direction,
-			uint8_t  center_servo_vision, float encoder_scale, IMU& imu, SerialCommunicator& com, MeEncoderOnBoard& Encoder_1, MeEncoderOnBoard& Encoder2_);
+		SmartRobot(uint8_t servo_port, uint8_t ultrasonic_sensor_port, uint8_t front_led_port, uint8_t center_servo_vision_ver,
+			uint8_t  center_servo_vision_hor, float encoder_scale, IMU& imu, SerialCommunicator& com, MeEncoderOnBoard& Encoder_1, MeEncoderOnBoard& Encoder2_);
 
 		void setTopLedsOn(const RgbColor& rgb_color, uint8_t start_led_id = 0, uint8_t n_leds = 12);
 		void setTopLedOn(const RgbColor& rgb_color, uint8_t led_id = 1);
@@ -165,11 +165,10 @@ class SmartRobot
 		void setRearMotorsSpeed(int16_t motorRatio, int16_t motorSpeed);
 
 		void setFrontWheelsAngle(int8_t angle);
-		void setVisionAngle(int8_t angle);
+		void setVisionAngle(int8_t angle_ver, int8_t angle_hor);
 
 		void showTopLedsBusy(long duration);
 		
-
 		void stop();
 
 		void startUp();

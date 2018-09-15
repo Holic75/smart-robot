@@ -13,8 +13,8 @@ struct ChangeStateMessage
 {
 	int motor_speed1;
 	int motor_speed2;
-	int direction_angle;
-	int vision_angle;
+	int vision_angle_ver;
+	int vision_angle_hor;
 	bool need_data;
 
 	ChangeStateMessage() {};
