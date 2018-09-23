@@ -1,4 +1,5 @@
 import struct
+import math
 
 
 class DataMessage:
@@ -8,19 +9,21 @@ class DataMessage:
          self.light_sensor_right,
          self.ultrasonic_distance,
          self.temperature,
-         self.pos_angle,
-         self.pos_x,
-         self.pos_y,
-         self.total_distance) = struct.unpack_from('<hhhfffff', byte_string_message, 1)
+         self.yaw,
+         self.pitch,
+         self.roll,
+         self.enc_1,
+         self.enc_2) = struct.unpack_from('<hhhffffll', byte_string_message, 1)
 
 
     def __str__(self):
-        return    ('Light_sensor = ({0}, {1}); ultrasonic_distance = {2}; '
-                   'temperature = {3:.1f}; position = ({4:.0f}; {5:.1f}, {6:.1f}); '
-                   'distance_passed = {7:.1f}').format(self.light_sensor_left,\
+        angle_scale = 180.0/math.pi
+        return    ('ls = ({0}, {1}); ud = {2}; '
+                   't = {3:.1f}; enc  = ({4}; {5}); '
+                   'ypr = ({6:.1f}; {7:.1f}; {8:.1f}) ').format(self.light_sensor_left,\
                     self.light_sensor_right, self.ultrasonic_distance,\
-                    self.temperature, 180*self.pos_angle, self.pos_x, self.pos_y,\
-                    self.total_distance)
+                    self.temperature, self.enc_1, self.enc_2, angle_scale*self.yaw,\
+                    angle_scale*self.pitch, angle_scale*self.roll)
              
 
 

@@ -19,8 +19,8 @@ def joystickSpeed():
         ax_hor = joystick.get_axis(0)
         ax_ver = -joystick.get_axis(1)
 
-        ax_hor = ax_hor*abs(ax_hor)
-        ax_ver = ax_ver*abs(ax_ver)
+        ax_hor = ax_hor**3
+        ax_ver = ax_ver**3
 
         speed1 = (ax_ver - ax_hor)
         speed2 = (ax_ver + ax_hor)
@@ -33,7 +33,11 @@ def joystickCamera():
     if pygame.joystick.get_count():
         joystick = pygame.joystick.Joystick(0)
         joystick.init()
-        return int(60.0*joystick.get_axis( 2 )), int(60.0*joystick.get_axis( 5 ))
+        ax_hor = -joystick.get_axis(2)
+        ax_ver = -joystick.get_axis(5)
+        ax_hor = ax_hor*abs(ax_hor)
+        ax_ver = ax_ver*abs(ax_ver)
+        return int(45.0*ax_hor), int(45.0*ax_ver)
     else:
         return 0, 0  
 
@@ -75,14 +79,6 @@ while True:
         arduino_link.reset()
 
     time.sleep(0.05)
-
-
-#arduino_link.sendMessage(message1)
-
-#while (not arduino_link.isMessageReceived()):
-#    arduino_link.runReceptionLoop()
-
-#print(arduino_link.getReceivedMessage())
 
 
 
